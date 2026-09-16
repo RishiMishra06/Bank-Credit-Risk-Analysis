@@ -1,7 +1,7 @@
 -- ==============================================================================
 -- ENTERPRISE CREDIT RISK & DEFAULT ANALYTICS PIPELINE
 -- Dialect: PostgreSQL 14+ / ANSI SQL Compliant
--- Author: Senior Risk Analytics Engineer
+-- Author: Rishi Mishra 
 -- Domain: Retail Lending & Unsecured Card Portfolio Risk Analysis
 -- Target Table: credit_risk_dataset
 -- ==============================================================================
