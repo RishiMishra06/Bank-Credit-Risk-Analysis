@@ -163,4 +163,4 @@ The script will:
 ```
 
 ---
-*Author: Rishi Mishra *
+*Author: Rishi Mishra*
