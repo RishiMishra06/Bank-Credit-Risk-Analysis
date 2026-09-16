@@ -147,20 +147,20 @@ The script will:
 
 ---
 
-## 7. Repository Structure
+### 7. Repository Structure
 
-```
+```text
 .
-â”œâ”€â”€ README.md                      # Recruiter-ready executive project documentation
-â”œâ”€â”€ generate_dataset.py            # Python dataset generation engine
-â”œâ”€â”€ credit_risk_dataset.csv        # 1,500-record production credit portfolio dataset
-â”œâ”€â”€ sql/
-â”‚   â””â”€â”€ credit_risk_analysis.sql   # PostgreSQL production data pipeline & queries
-â”œâ”€â”€ power_bi/
-â”‚   â””â”€â”€ dashboard_specs.md         # Ready-to-copy DAX measures & 2-page dashboard layout
-â””â”€â”€ docs/
-    â””â”€â”€ executive_summary.md       # Chief Risk Officer (CRO) strategic memo & ROI model
-```
+├── README.md
+├── generate_dataset.py
+├── credit_risk_dataset.csv
+├── sql/
+│   └── credit_risk_analysis.sql
+├── power_bi/
+│   └── dashboard_specs.md
+└── docs/
+    └── executive_summary.md
+
 
 ---
 *Author: Rishi Mishra*
