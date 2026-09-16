@@ -1,8 +1,7 @@
 # Power BI DAX Measures & Dashboard Architecture Specifications
 **Project:** Bank Credit Card & Loan Default Risk Analysis  
 **Target Platform:** Power BI Desktop / Power BI Service (Enterprise Premium)  
-**Author:** Senior Risk Analytics Engineer  
-**Division:** Global Consumer Credit Risk & Portfolio Governance  
+**Author:** Rishi Mishra
 
 ---
 
