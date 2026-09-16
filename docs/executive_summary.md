@@ -1,10 +1,4 @@
-# Executive Credit Risk Memo: Portfolio Health & Underwriting Policy Optimization
-
-**TO:** Chief Risk Officer (CRO), Retail Banking & Consumer Lending  
-**FROM:** Senior Financial Data Analyst & Analytics Engineer, Global Credit Risk Analytics  
-**DATE:** September 16, 2026  
-**SUBJECT:** Retail Credit Card & Personal Loan Portfolio Default Analysis & Underwriting Policy Recommendations  
-**CLASSIFICATION:** Confidential / Institutional Credit Committee Review  
+# Executive Credit Risk Memo: Portfolio Health & Underwriting Policy Optimization 
 
 ---
 
