@@ -6,7 +6,9 @@
 
 ## 1. Data Model
 
-Use `credit_risk_dataset` as the main table. The Python analysis creates matching fields such as:
+Use `outputs/credit_risk_analysis_ready.csv` as the main Power BI source after running the Python EDA script. This keeps the dashboard fields consistent with the cleaned and feature-engineered dataset.
+
+The prepared data contains fields such as:
 
 - Credit_Score_Bucket
 - Income_Bracket
@@ -14,6 +16,7 @@ Use `credit_risk_dataset` as the main table. The Python analysis creates matchin
 - Utilization_Band
 - Risk_Tier
 - Exposure_at_Default
+- Default_Label
 
 The dataset has no date column, so time-intelligence measures such as MoM or YTD should not be added to this version of the dashboard.
 
@@ -21,15 +24,15 @@ The dataset has no date column, so time-intelligence measures such as MoM or YTD
 
 ```dax
 Total Customers =
-COUNTROWS(credit_risk_dataset)
+COUNTROWS(credit_risk_analysis_ready)
 
 Total Exposure =
-SUM(credit_risk_dataset[Total_Debt])
+SUM(credit_risk_analysis_ready[Total_Debt])
 
 Defaulted Customers =
 CALCULATE(
-    COUNTROWS(credit_risk_dataset),
-    credit_risk_dataset[Default_Status] = 1
+    COUNTROWS(credit_risk_analysis_ready),
+    credit_risk_analysis_ready[Default_Status] = 1
 )
 
 Default Rate % =
@@ -37,30 +40,26 @@ DIVIDE([Defaulted Customers], [Total Customers], 0)
 
 Defaulted Exposure =
 CALCULATE(
-    SUM(credit_risk_dataset[Total_Debt]),
-    credit_risk_dataset[Default_Status] = 1
+    SUM(credit_risk_analysis_ready[Total_Debt]),
+    credit_risk_analysis_ready[Default_Status] = 1
 )
 
 Average Credit Score =
-AVERAGE(credit_risk_dataset[Credit_Score])
+AVERAGE(credit_risk_analysis_ready[Credit_Score])
 
 Average DTI % =
-AVERAGE(credit_risk_dataset[Debt_to_Income_Ratio])
+AVERAGE(credit_risk_analysis_ready[Debt_to_Income_Ratio])
 
 Average Utilization % =
-AVERAGE(credit_risk_dataset[Credit_Utilization_Rate])
+AVERAGE(credit_risk_analysis_ready[Credit_Utilization_Rate])
 
 Total EAD =
-SUM(credit_risk_dataset[Exposure_at_Default])
-
-Illustrative Loss Estimate =
-[Defaulted Exposure] * 0.65
-
-Average Loss per Default =
-DIVIDE([Illustrative Loss Estimate], [Defaulted Customers], 0)
+SUM(credit_risk_analysis_ready[Exposure_at_Default])
 ```
 
-The 65% loss assumption is only an illustrative portfolio-analysis assumption. It should not be presented as an actual bank regulatory provision or a real institution's LGD model.
+Format `Default Rate %`, `Average DTI %`, and `Average Utilization %` as percentages in Power BI.
+
+`Exposure_at_Default` is an illustrative analytical field created for this portfolio project. It should not be presented as an actual bank regulatory EAD calculation.
 
 ## 3. Page 1 - Executive Overview
 
@@ -70,7 +69,7 @@ The 65% loss assumption is only an illustrative portfolio-analysis assumption. I
 2. Total Exposure
 3. Default Rate %
 4. Defaulted Customers
-5. Illustrative Loss Estimate
+5. Average Credit Score
 
 ### Visuals
 
@@ -93,7 +92,7 @@ The 65% loss assumption is only an illustrative portfolio-analysis assumption. I
 **5. Credit Score vs Utilization**  
 - X-axis: `Credit_Score`
 - Y-axis: `Credit_Utilization_Rate`
-- Legend: `Default_Status`
+- Legend: `Default_Label`
 - Size: `Total_Debt`
 
 ## 4. Page 2 - Risk Analysis
@@ -152,7 +151,7 @@ The dashboard should help answer:
 3. Which employment groups show different default patterns?
 4. Which loan purposes have higher observed default rates?
 5. How do DTI and utilization relate to observed defaults?
-6. Which borrowers fall into the defined high-risk tiers?
+6. Which borrowers fall into the defined high-risk tier?
 7. Where is the portfolio exposure concentrated?
 
 ## 7. Important Interpretation Note
