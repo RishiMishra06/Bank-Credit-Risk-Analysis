@@ -66,20 +66,25 @@ def add_features(df):
 
     df["Risk_Tier"] = np.select(
         [
-            (df["Credit_Score"] < 600) & ((df["Debt_to_Income_Ratio"] > 0.45) | (df["Late_Payments_90_Days"] >= 1)),
-            (df["Credit_Score"] < 650) | (df["Debt_to_Income_Ratio"] > 0.48) | (df["Credit_Utilization_Rate"] > 0.80),
-            (df["Credit_Score"].between(650, 719)) & (df["Debt_to_Income_Ratio"] <= 0.48),
-            (df["Credit_Score"] >= 720) & (df["Debt_to_Income_Ratio"] <= 0.36) & (df["Late_Payments_30_Days"] == 0)
+            (df["Credit_Score"] < 600)
+            | (df["Debt_to_Income_Ratio"] > 0.45)
+            | (df["Credit_Utilization_Rate"] > 0.80)
+            | (df["Late_Payments_90_Days"] > 0),
+            (df["Credit_Score"] < 700)
+            | (df["Debt_to_Income_Ratio"] > 0.35)
+            | (df["Credit_Utilization_Rate"] > 0.50)
         ],
-        ["Severe / Critical Risk", "High Risk", "Moderate Risk", "Prime / Low Risk"],
-        default="Moderate Risk"
+        ["High", "Medium"],
+        default="Low"
     )
 
     df["Exposure_at_Default"] = (
         df["Total_Debt"]
         + 0.50 * np.maximum(
             0,
-            df["Credit_Card_Limit"] - (df["Credit_Card_Limit"] * df["Credit_Utilization_Rate"])
+            df["Credit_Card_Limit"] - (
+                df["Credit_Card_Limit"] * df["Credit_Utilization_Rate"]
+            )
         )
     )
 
@@ -227,10 +232,10 @@ def main():
     summary_table(df, "Utilization_Band", "utilization_summary.csv")
     summary_table(df, "Risk_Tier", "risk_tier_summary.csv")
 
-    high_risk = df[df["Risk_Tier"].isin(["Severe / Critical Risk", "High Risk"])].copy()
+    high_risk = df[df["Risk_Tier"] == "High"].copy()
     high_risk = high_risk.sort_values(
-        ["Default_Status", "Debt_to_Income_Ratio", "Credit_Utilization_Rate"],
-        ascending=[False, False, False]
+        ["Default_Status", "Late_Payments_90_Days", "Debt_to_Income_Ratio", "Credit_Utilization_Rate"],
+        ascending=[False, False, False, False]
     )
     high_risk.to_csv(os.path.join(OUTPUT_DIR, "high_risk_customers.csv"), index=False)
 
