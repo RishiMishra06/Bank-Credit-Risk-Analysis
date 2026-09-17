@@ -64,6 +64,25 @@ def add_features(df):
         df["Default_Status"] == 1, "Defaulted", "Current"
     )
 
+    df["Risk_Tier"] = np.select(
+        [
+            (df["Credit_Score"] < 600) & ((df["Debt_to_Income_Ratio"] > 0.45) | (df["Late_Payments_90_Days"] >= 1)),
+            (df["Credit_Score"] < 650) | (df["Debt_to_Income_Ratio"] > 0.48) | (df["Credit_Utilization_Rate"] > 0.80),
+            (df["Credit_Score"].between(650, 719)) & (df["Debt_to_Income_Ratio"] <= 0.48),
+            (df["Credit_Score"] >= 720) & (df["Debt_to_Income_Ratio"] <= 0.36) & (df["Late_Payments_30_Days"] == 0)
+        ],
+        ["Severe / Critical Risk", "High Risk", "Moderate Risk", "Prime / Low Risk"],
+        default="Moderate Risk"
+    )
+
+    df["Exposure_at_Default"] = (
+        df["Total_Debt"]
+        + 0.50 * np.maximum(
+            0,
+            df["Credit_Card_Limit"] - (df["Credit_Card_Limit"] * df["Credit_Utilization_Rate"])
+        )
+    )
+
     return df
 
 
@@ -85,7 +104,7 @@ def quality_audit(df):
             int((df["Annual_Income"] <= 0).sum()),
             int((df["Total_Debt"] < 0).sum()),
             int(((df["Debt_to_Income_Ratio"] < 0) | (df["Debt_to_Income_Ratio"] > 1)).sum()),
-            int((df["Credit_Utilization_Rate"] < 0).sum()),
+            int(((df["Credit_Utilization_Rate"] < 0) | (df["Credit_Utilization_Rate"] > 1.5)).sum()),
             int((~df["Default_Status"].isin([0, 1])).sum())
         ]
     })
@@ -122,7 +141,7 @@ def create_kpis(df):
         "Metric": [
             "Total Customers", "Defaulted Customers", "Default Rate (%)",
             "Total Exposure", "Defaulted Exposure", "Average Credit Score",
-            "Average DTI (%)", "Average Utilization (%)"
+            "Average DTI (%)", "Average Utilization (%)", "Total EAD"
         ],
         "Value": [
             total_customers,
@@ -132,7 +151,8 @@ def create_kpis(df):
             round(defaulted_exposure, 2),
             round(df["Credit_Score"].mean(), 2),
             round(df["Debt_to_Income_Ratio"].mean() * 100, 2),
-            round(df["Credit_Utilization_Rate"].mean() * 100, 2)
+            round(df["Credit_Utilization_Rate"].mean() * 100, 2),
+            round(df["Exposure_at_Default"].sum(), 2)
         ]
     })
     kpis.to_csv(os.path.join(OUTPUT_DIR, "portfolio_kpis.csv"), index=False)
@@ -205,19 +225,9 @@ def main():
     summary_table(df, "Loan_Purpose", "loan_purpose_summary.csv")
     summary_table(df, "DTI_Band", "dti_summary.csv")
     summary_table(df, "Utilization_Band", "utilization_summary.csv")
+    summary_table(df, "Risk_Tier", "risk_tier_summary.csv")
 
-    risk = df.copy()
-    risk["Risk_Tier"] = np.select(
-        [
-            (risk["Credit_Score"] < 600) | (risk["Debt_to_Income_Ratio"] > 0.45),
-            (risk["Credit_Score"] < 700) | (risk["Debt_to_Income_Ratio"] > 0.35)
-        ],
-        ["High", "Medium"],
-        default="Low"
-    )
-    summary_table(risk, "Risk_Tier", "risk_tier_summary.csv")
-
-    high_risk = risk[risk["Risk_Tier"] == "High"].copy()
+    high_risk = df[df["Risk_Tier"].isin(["Severe / Critical Risk", "High Risk"])].copy()
     high_risk = high_risk.sort_values(
         ["Default_Status", "Debt_to_Income_Ratio", "Credit_Utilization_Rate"],
         ascending=[False, False, False]
@@ -230,6 +240,8 @@ def main():
     print("Credit risk EDA completed successfully.")
     print(f"Rows: {len(df):,}")
     print(f"Default rate: {df['Default_Status'].mean() * 100:.2f}%")
+    print(f"Total exposure: ${df['Total_Debt'].sum():,.2f}")
+    print(f"Total EAD: ${df['Exposure_at_Default'].sum():,.2f}")
     print(f"Outputs saved in: {OUTPUT_DIR}/")
 
 
