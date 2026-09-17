@@ -1,166 +1,307 @@
-# Bank Credit Card & Loan Default Risk Analysis
-### Enterprise Credit Risk Intelligence, Basel III Loss Forecasting & Underwriting Policy Optimization
+# Bank Credit Risk Analysis
 
-[![SQL-PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_14+-blue.svg?logo=postgresql&logoColor=white)](#part-2-production-grade-sql-pipeline)
-[![Power-BI](https://img.shields.io/badge/BI-Power_BI_DAX-F2C811.svg?logo=powerbi&logoColor=black)](#part-3-power-bi-dax-measures--visual-architecture)
-[![Python-Engine](https://img.shields.io/badge/Analytics-Python_3.10-3776AB.svg?logo=python&logoColor=white)](#part-1-dataset-generation-engine)
-[![Risk-Standard](https://img.shields.io/badge/Standard-Basel_III_CECL-darkgreen.svg)](#part-4-executive-summary--cro-recommendations)
+### End-to-End Data Analytics Project using Python, SQL & Power BI
 
----
-
-## 1. Project Overview & Business Problem Statement
-
-Retail lending institutions face an ongoing challenge: how to maximize credit card and personal loan origination volumes while controlling default rates and mitigating provisions under Basel III and CECL guidelines. 
-
-This enterprise analytics portfolio project models, diagnoses, and remediates credit default vulnerability across a retail banking portfolio of **1,500 active customer credit facilities** representing **$26,166,271.90 ($26.17M) in total drawn credit exposure**.
-
-### Business Objectives:
-1. **Identify Primary Risk Drivers:** Isolate the quantitative determinants of retail default risk across credit bureau scores, debt-to-income (DTI) ratios, revolving utilization, and historical delinquencies.
-2. **Quantify Exposure at Default (EAD) & Expected Loss (ECL):** Implement regulatory loss modeling (`EAD * PD * LGD`) assuming a benchmark 65% Loss Given Default for unsecured retail debt.
-3. **Formulate Rules-Based Policy Interventions:** Design actionable underwriting policy knockouts and line-management guardrails to reduce net charge-offs without impairing profitable credit expansion.
+[![Python](https://img.shields.io/badge/Python-Pandas%20%7C%20NumPy-3776AB?logo=python&logoColor=white)](#1-python-data-cleaning--eda)
+[![SQL](https://img.shields.io/badge/SQL-PostgreSQL-336791?logo=postgresql&logoColor=white)](#2-sql-analysis)
+[![Power BI](https://img.shields.io/badge/Power%20BI-DAX-F2C811?logo=powerbi&logoColor=black)](#3-power-bi-dashboard)
+[![Status](https://img.shields.io/badge/Project-Portfolio%20Ready-success)](#project-overview)
 
 ---
 
-## 2. Tech Stack & Analytics Architecture
+## Project Overview
 
-```
-+-------------------------------------------------------------------------------------------------+
-|                                 ENTERPRISE ANALYTICS PIPELINE                                   |
-+-------------------------------------------------------------------------------------------------+
-|  [Layer 1: Data Engineering]    -->  [Layer 2: SQL Analytics]      -->  [Layer 3: Power BI BI]  |
-|  - Python 3.10 (Pandas, NumPy)       - PostgreSQL 14+ / ANSI SQL        - Power BI Desktop / DAX|
-|  - Basel III Logistic Calibration    - Quality Assurance CTEs           - 2-Page Executive Canvas |
-|  - FICO & DTI Synthetic Generator    - Regulatory Risk Tiering Views    - Dynamic Global Slicers  |
-|  - Empirical Delinquency Seeds       - Window Function Cohort Ranks     - Surveillance Drill-down |
-+-------------------------------------------------------------------------------------------------+
-```
+**Bank Credit Risk Analysis** is an end-to-end Data Analyst portfolio project that analyzes customer credit, debt, utilization, delinquency and default information to identify high-risk customer segments and support data-driven credit-risk decisions.
 
-| Technology | Purpose | Key Artifacts |
-| :--- | :--- | :--- |
-| **Python 3.10** | Synthetic portfolio generation, Basel III logistic risk calibration | `generate_dataset.py`, `credit_risk_dataset.csv` |
-| **PostgreSQL 14+** | Data sanitization, feature engineering, window functions, ECL modeling | `sql/credit_risk_analysis.sql` |
-| **Power BI / DAX** | Executive portfolio health dashboard, risk migration, drill-down matrix | `power_bi/dashboard_specs.md` |
-| **Executive Governance** | CRO credit memo, underwriting knockout criteria, ROI scenario model | `docs/executive_summary.md` |
-
----
-
-## 3. Data Schema & Dictionary
-
-The primary entity table `credit_risk_dataset` models 1,500 credit facility records:
-
-| Column Name | Data Type | Constraint | Business Description |
-| :--- | :--- | :--- | :--- |
-| `Customer_ID` | `VARCHAR(16)` | `PRIMARY KEY` | Unique customer account identifier (e.g. `CUST-1001`) |
-| `Age` | `INTEGER` | `21 - 65` | Age of primary accountholder |
-| `Gender` | `VARCHAR(10)` | `Male / Female` | Demographic segmentation |
-| `Annual_Income` | `NUMERIC(12,2)` | `$25k - $250k` | Verified gross annual personal income |
-| `Employment_Status` | `VARCHAR(20)` | `Enum` | `Employed`, `Self-Employed`, `Unemployed`, `Student` |
-| `Credit_Score` | `INTEGER` | `300 - 850` | Standard credit bureau score (FICO scale) |
-| `Total_Debt` | `NUMERIC(12,2)` | `$0 - $100k` | Current aggregate outstanding drawn obligations |
-| `Debt_to_Income_Ratio` | `NUMERIC(6,4)` | `0.05 - 0.75` | Monthly debt service ratio against monthly income |
-| `Credit_Card_Limit` | `NUMERIC(12,2)` | `$1k - $50k` | Total revolving line of credit facility assigned |
-| `Credit_Utilization_Rate` | `NUMERIC(6,4)` | `0.0 - 1.0` | Proportion of assigned revolving line drawn |
-| `Late_Payments_30_Days` | `INTEGER` | `0 - 6` | Number of 30-day past-due events in trailing 12M |
-| `Late_Payments_90_Days` | `INTEGER` | `0 - 3` | Number of 90-day past-due events (severe delinquency) |
-| `Default_Status` | `SMALLINT` | `0 or 1` | `1` = Charge-off / default; `0` = Current / performing |
-| `Loan_Purpose` | `VARCHAR(40)` | `Enum` | `Debt Consolidation`, `Home Improvement`, `Personal`, etc. |
-
----
-
-## 4. Key Analytical Insights
-
-```
-+-------------------------------------------------------------------------------------------------+
-| AUDITED PORTFOLIO BENCHMARK METRICS                                                             |
-+------------------------------------+----------------------------+-------------------------------+
-| Metric                             | Value                      | Benchmark Comparison          |
-+------------------------------------+----------------------------+-------------------------------+
-| Total Customer Base                | 1,500 Accounts             | Baseline active portfolio     |
-| Portfolio Defaults                 | 215 Defaults (14.33%)      | Target threshold: < 12.00%    |
-| Aggregate Drawn Exposure           | $26,166,271.90             | Average balance: $17,444.18   |
-| Gross Defaulted Balances           | $4,247,575.94              | 16.23% of total loan balance  |
-| Net Credit Loss (65% LGD)          | $2,760,924.36              | 10.55% net portfolio loss     |
-| Average Net Loss per Default       | $12,841.51                 | Per defaulted account         |
-+------------------------------------+----------------------------+-------------------------------+
-```
-
-1. **The 600-FICO Cliff:** Borrowers with credit scores below 600 represent **34.80% of accounts** but generate **90.70% of all defaults (195/215)**, producing an acute **37.36% default rate**.
-2. **The Severe High-Risk Tail (Score < 600 & DTI > 45%):** A focused cohort of 76 accounts registered a **68.42% default rate**, accounting for **$1.64M** of defaulted balances.
-3. **Employment Volatility Impact:** Unemployed accountholders recorded a **47.66% default rate**, vs. 11.86% for regularly employed borrowers.
-4. **Refinancing Distress in Debt Consolidation:** Debt consolidation loans exhibited the highest default incidence (**18.37%**), proving that consolidation without revolving line closure triggers debt-stacking traps.
-
----
-
-## 5. Strategic Recommendations & Underwriting Impact
-
-```
-+-------------------------------------------------------------------------------------------------+
-| PROJECTED ANNUAL BUSINESS IMPACT (SIMULATION MODEL)                                             |
-+----------------------------------------+-------------------+-------------------+----------------+
-| Metric                                 | Baseline          | Post-Reform       | Net Variance   |
-+----------------------------------------+-------------------+-------------------+----------------+
-| Total Active Accounts                  | 1,500 Borrowers   | 1,424 Borrowers   | -76 (-5.07%)   |
-| Total Defaults                         | 215 Defaults      | 163 Defaults      | -52 (-24.19%)  |
-| Portfolio Default Rate (%)             | 14.33%            | 11.45%            | -288 bps       |
-| Net Credit Loss / Charge-Offs (65% LGD)| $2,760,924.36     | $1,692,394.30     | +$1,068,530.06 |
-| Less: Forgone Net Margin (24 accounts) | --                | --                | -$76,800.00    |
-| NET ECONOMIC BENEFIT TO TIER-1 CAPITAL | --                | --                | +$991,730.06   |
-+----------------------------------------+-------------------+-------------------+----------------+
-```
-
-### Core Policy Reforms Proposed to Credit Committee:
-1. **DTI Hard-Cap at 45% for Subprime Borrowers:** Automatic underwriting rejection for any applicant with `DTI > 0.45` and `Credit_Score < 650`.
-2. **Automated Knockout on Sub-580 Bureau Scores with Delinquencies:** Mandatory knockout for any applicant with score `< 580` possessing any trailing 30+ day delinquency.
-3. **Dynamic Revolving Line Compression:** Implement proactive 20% limit reductions when revolving utilization exceeds 75% for 2 consecutive cycles coupled with credit score deterioration.
-
----
-
-## 6. How to Run & Reproduce
-
-### 1. Generate Synthetic Dataset (Python)
-```bash
-# Clone repository
-git clone https://github.com/your-org/bank-credit-risk-analytics.git
-cd bank-credit-risk-analytics
-
-# Run generator (generates 1,500 calibrated records)
-python3 generate_dataset.py 1500
-```
-This writes `credit_risk_dataset.csv` directly into the working directory.
-
-### 2. Execute SQL Analytics Pipeline (PostgreSQL)
-```bash
-# Connect to PostgreSQL and execute the complete analytics script
-psql -U postgres -d credit_risk_db -f sql/credit_risk_analysis.sql
-```
-The script will:
-- Execute data sanitization audits.
-- Create feature engineering view `vw_credit_risk_engineered`.
-- Output default stratifications by employment, score bucket, and loan purpose.
-- Run window function rankings (`AVG() OVER()`, `NTILE(4)`, `DENSE_RANK()`).
-- Compute Basel III expected loss provisions.
-
-### 3. Load DAX Measures in Power BI
-1. Launch Power BI Desktop and import `credit_risk_dataset.csv`.
-2. Open `power_bi/dashboard_specs.md` and copy the DAX measure formulas into your Power BI Data Model.
-3. Follow the 2-Page Visual Architecture Plan to construct Page 1 (Executive Health) and Page 2 (Deep-Dive Analytics).
-
----
-
-### 7. Repository Structure
+The project follows a practical analytics workflow:
 
 ```text
-.
-├── README.md
-├── generate_dataset.py
-├── credit_risk_dataset.csv
-├── sql/
-│   └── credit_risk_analysis.sql
-├── power_bi/
-│   └── dashboard_specs.md
-└── docs/
-    └── executive_summary.md
+Raw CSV Data
+     ↓
+Python Data Cleaning & EDA
+     ↓
+PostgreSQL SQL Analysis
+     ↓
+Power BI Dashboard
+     ↓
+Business Insights & Recommendations
+```
 
+### Business Problem
+
+A lending business needs to understand which customer characteristics and credit behaviors are associated with higher default risk. The analysis focuses on questions such as:
+
+- What is the overall default rate?
+- Which credit-score segments show higher default rates?
+- How does debt-to-income ratio relate to default?
+- Does higher credit utilization correspond with higher risk?
+- Which employment groups and loan purposes show different default patterns?
+- Which customers or segments should be prioritized for risk monitoring?
+
+> **Important:** This repository uses a **synthetic dataset** for portfolio and learning purposes. It does not contain real bank customer information. Any loss, LGD, PD, ECL or policy assumptions used in the analysis are illustrative analytical assumptions and are not an actual bank's regulatory model.
 
 ---
-*Author: Rishi Mishra*
+
+## Tools & Technologies
+
+| Tool | Purpose |
+|---|---|
+| **Python** | Data cleaning, validation, feature engineering, EDA and charts |
+| **Pandas / NumPy** | Data manipulation and analytical calculations |
+| **Matplotlib** | Data visualization |
+| **PostgreSQL / SQL** | Data quality checks, segmentation, aggregations and advanced analysis |
+| **Power BI** | Interactive dashboard and business reporting |
+| **DAX** | KPI measures and calculated analytics |
+| **GitHub** | Version control and portfolio documentation |
+
+---
+
+## Dataset
+
+The main dataset is available at:
+
+`data/credit_risk_dataset.csv`
+
+The dataset contains customer-level fields covering:
+
+- Customer ID and demographic information
+- Annual income and employment status
+- Credit score
+- Total debt
+- Debt-to-income ratio
+- Credit-card limit and utilization
+- 30-day and 90-day late-payment counts
+- Default status
+- Loan purpose
+
+See the detailed [data dictionary](docs/data_dictionary.md).
+
+---
+
+# 1. Python Data Cleaning & EDA
+
+The Python analysis script is available at:
+
+`python/bank_credit_risk_eda.py`
+
+### Data preparation includes
+
+- Loading the raw CSV dataset
+- Standardizing column names
+- Checking missing values
+- Checking duplicate records
+- Validating important numeric ranges
+- Creating analytical buckets for credit score, income, DTI and utilization
+- Creating risk-oriented customer segments
+- Calculating portfolio KPIs
+- Producing segment-level summary tables
+- Identifying high-risk customers
+- Generating business-focused charts
+
+### Main outputs
+
+The script creates an `outputs/` directory containing analytical CSV files and charts when it is executed locally.
+
+---
+
+# 2. SQL Analysis
+
+The SQL layer is used to move beyond basic aggregation and answer business questions using PostgreSQL.
+
+### SQL analysis covers
+
+- Data-quality auditing
+- Feature engineering
+- Risk-tier classification
+- Default-rate analysis
+- Credit-score segmentation
+- Employment and loan-purpose analysis
+- DTI and utilization analysis
+- Delinquency analysis
+- Customer ranking and segmentation
+- Window functions
+- Exposure and loss calculations
+
+The SQL scripts are stored in the `sql/` directory.
+
+---
+
+# 3. Power BI Dashboard
+
+The Power BI layer converts the analytical results into an interactive business dashboard.
+
+### Page 1 — Executive Overview
+
+Recommended KPIs and visuals include:
+
+- Total Customers
+- Total Exposure / Debt
+- Defaulted Customers
+- Default Rate
+- Expected Credit Loss under illustrative assumptions
+- Default Rate by Risk Tier
+- Default Rate by Credit Score
+- Exposure by Loan Purpose
+- Default Rate by Employment Status
+- Credit Score vs Credit Utilization
+
+### Page 2 — Risk Analysis
+
+The detailed risk page focuses on:
+
+- Employment Status slicer
+- Credit Score Bucket slicer
+- Loan Purpose slicer
+- Risk Tier slicer
+- DTI vs Default analysis
+- Utilization vs Default analysis
+- 30-day and 90-day delinquency analysis
+- High-risk customer table
+
+Power BI design specifications and DAX measures are available in `power_bi/`.
+
+---
+
+# Key Analytical Areas
+
+### 1. Credit Score Risk
+
+Compare default rates across credit-score buckets to identify whether lower-score customers show different default behavior.
+
+### 2. Debt-to-Income Risk
+
+Segment customers by DTI bands and compare default rates and exposure across those groups.
+
+### 3. Credit Utilization
+
+Analyze whether customers using a larger proportion of their available credit have different observed default rates.
+
+### 4. Delinquency
+
+Compare 30-day and 90-day late-payment behavior with default status to identify potentially important risk signals.
+
+### 5. Customer Segmentation
+
+Combine multiple indicators such as credit score, DTI, utilization and delinquency to create practical risk segments for monitoring.
+
+> These relationships are observational. The analysis should not be interpreted as proving that a particular variable directly causes default.
+
+---
+
+# Business Recommendations Framework
+
+Based on the observed patterns in the final analysis, a lending team could consider:
+
+1. **Risk-based monitoring** for segments showing consistently higher observed default rates.
+2. **Early-warning indicators** using delinquency, utilization and DTI signals.
+3. **Credit-line review** for customers showing sustained high utilization together with other risk indicators.
+4. **Segment-specific review** rather than applying the same intervention to every customer.
+5. **Dashboard-driven monitoring** so risk teams can track portfolio changes over time.
+
+These are analytical recommendations for the portfolio exercise, not production underwriting rules.
+
+---
+
+# Repository Structure
+
+```text
+Bank-Credit-Risk-Analysis/
+│
+├── data/
+│   └── credit_risk_dataset.csv
+│
+├── python/
+│   └── bank_credit_risk_eda.py
+│
+├── sql/
+│   ├── 01_data_quality.sql
+│   ├── 02_data_cleaning.sql
+│   ├── 03_basic_analysis.sql
+│   ├── 04_credit_risk_analysis.sql
+│   ├── 05_customer_segmentation.sql
+│   ├── 06_advanced_analysis.sql
+│   └── 07_business_kpis.sql
+│
+├── power_bi/
+│   ├── Bank_Credit_Risk_Analysis.pbix
+│   └── dashboard_specs.md
+│
+├── docs/
+│   ├── data_dictionary.md
+│   └── executive_summary.md
+│
+├── outputs/
+│   └── generated after running the Python analysis
+│
+├── README.md
+└── requirements.txt
+```
+
+> The structure above describes the intended portfolio layout. Files are added to the repository as the corresponding analysis artifacts are completed.
+
+---
+
+# How to Run
+
+## Step 1 — Clone the repository
+
+```bash
+git clone https://github.com/RishiMishra06/Bank-Credit-Risk-Analysis.git
+cd Bank-Credit-Risk-Analysis
+```
+
+## Step 2 — Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## Step 3 — Run Python EDA
+
+```bash
+python python/bank_credit_risk_eda.py
+```
+
+This reads:
+
+`data/credit_risk_dataset.csv`
+
+and generates analytical outputs under:
+
+`outputs/`
+
+## Step 4 — Run SQL Analysis
+
+Load the dataset into PostgreSQL and execute the SQL scripts in the `sql/` directory according to their numbered order.
+
+## Step 5 — Open Power BI
+
+Open the Power BI file/specification in `power_bi/`, connect the model to the prepared data, and build the dashboard using the documented DAX measures and visual plan.
+
+---
+
+# Project Limitations
+
+- The dataset is synthetic and is not representative of a real bank's customer population.
+- The project does not include real transaction history, bureau history or time-series account behavior.
+- Observed relationships are not proof of causation.
+- Any PD, LGD, EAD or ECL assumptions are illustrative for analytics practice.
+- Production credit decisions would require model validation, governance, regulatory review, fairness testing and additional customer-level data.
+
+---
+
+# Portfolio Value
+
+This project demonstrates an end-to-end Data Analyst workflow rather than only a dashboard:
+
+**Python → SQL → Power BI → Business Insights**
+
+It showcases skills in data cleaning, exploratory analysis, SQL querying, segmentation, KPI development, dashboard design and communicating analytical findings to business stakeholders.
+
+---
+
+## Author
+
+**Rishi Mishra**
+
+Data Analytics | SQL | Python | Excel | Power BI
